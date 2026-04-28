@@ -1,42 +1,54 @@
 import { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
+import { NodeView } from './components/NodeView';
 import { useSubjects } from './hooks/useSubjects';
+import { type Subject } from './db/database';
 
 function App() {
   const { subjects, addSubject, deleteSubject } = useSubjects();
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
 
-  const selectedSubject = subjects.find((s) => s.id === selectedSubjectId) ?? null;
+  function handleSelectSubject(id: string) {
+    const subject = subjects.find((s) => s.id === id);
+    if (subject) setSelectedSubject(subject);
+  }
 
+  async function handleDeleteSubject(id: string) {
+    await deleteSubject(id);
+    if (selectedSubject?.id === id) setSelectedSubject(null);
+  }
+
+  // 과목이 선택되면 노드 뷰로 전환
+  if (selectedSubject) {
+    // subjects가 업데이트되면 최신 데이터로 동기화
+    const fresh = subjects.find((s) => s.id === selectedSubject.id) ?? selectedSubject;
+    return (
+      <NodeView
+        subject={fresh}
+        onBack={() => setSelectedSubject(null)}
+      />
+    );
+  }
+
+  // 기본: 과목 목록 화면
   return (
     <div className="flex h-screen overflow-hidden bg-white">
       <Sidebar
         subjects={subjects}
-        selectedId={selectedSubjectId}
-        onSelect={setSelectedSubjectId}
+        selectedId={null}
+        onSelect={handleSelectSubject}
         onAdd={addSubject}
-        onDelete={async (id) => {
-          await deleteSubject(id);
-          if (selectedSubjectId === id) setSelectedSubjectId(null);
-        }}
+        onDelete={handleDeleteSubject}
       />
 
-      {/* 오른쪽 콘텐츠 영역 */}
       <main className="flex-1 overflow-y-auto flex items-center justify-center">
         {subjects.length === 0 ? (
           <div className="text-center space-y-3">
             <p className="text-4xl">📚</p>
             <p className="text-xl font-semibold text-gray-700">첫 과목을 만들어보세요</p>
-            <p className="text-sm text-gray-400">왼쪽 사이드바의 <strong>과목 추가</strong> 버튼을 눌러보세요</p>
-          </div>
-        ) : selectedSubject ? (
-          <div className="text-center space-y-2">
-            <span
-              className="inline-block w-4 h-4 rounded-full mb-1"
-              style={{ backgroundColor: selectedSubject.color }}
-            />
-            <p className="text-2xl font-bold text-gray-800">{selectedSubject.name}</p>
-            <p className="text-sm text-gray-400">Week 3에서 트리 노드를 추가할 예정입니다</p>
+            <p className="text-sm text-gray-400">
+              왼쪽 사이드바의 <strong>과목 추가</strong> 버튼을 눌러보세요
+            </p>
           </div>
         ) : (
           <div className="text-center space-y-2">
