@@ -1,48 +1,58 @@
 import Dexie, { type EntityTable } from 'dexie';
 
-// 과목 (최상위 계층)
+export type GradeLevel = 'ELEMENTARY' | 'MIDDLE' | 'HIGH' | 'UNIV' | 'OTHER';
+
+export const GRADE_LEVEL_LABELS: Record<GradeLevel, string> = {
+  ELEMENTARY: '초등',
+  MIDDLE: '중등',
+  HIGH: '고등',
+  UNIV: '대학',
+  OTHER: '기타',
+};
+
+// 사이드바 그룹 표시 순서
+export const GRADE_LEVEL_ORDER: GradeLevel[] = [
+  'ELEMENTARY', 'MIDDLE', 'HIGH', 'UNIV', 'OTHER',
+];
+
 export interface Subject {
-  id: number;
-  grade_level: number | null;
+  id: string;
+  grade_level: GradeLevel | null;
   name: string;
   color: string;
   order: number;
-  created_at: Date;
-  updated_at: Date;
+  created_at: number;
+  updated_at: number;
 }
 
-// 트리 노드 (파트 / 챕터 / 소챕터)
-// body_json: TipTap 에디터 문서 객체를 그대로 저장
 export interface Node {
-  id: number;
-  parent_id: number | null;
-  subject_id: number;
+  id: string;
+  parent_id: string | null;
+  subject_id: string;
   order: number;
   title: string;
-  body_json: Record<string, unknown> | null;
+  body_json: object;
   is_collapsed: boolean;
-  created_at: Date;
-  updated_at: Date;
+  created_at: number;
+  updated_at: number;
 }
 
-// 필기 캔버스 페이지 (노드당 여러 페이지 가능)
 export interface InkPage {
-  id: number;
-  node_id: number;
+  id: string;
+  node_id: string;
   page_index: number;
   width: number;
   height: number;
 }
 
-// 필기 획 하나 (points는 좌표 배열, pressure는 필압 배열)
 export interface Stroke {
-  id: number;
-  ink_page_id: number;
-  points: Array<{ x: number; y: number }>;
+  id: string;
+  ink_page_id: string;
+  points: Array<[number, number]>;
   pressure: number[];
   color: string;
   base_width: number;
-  created_at: Date;
+  created_at: number;
 }
 
 const db = new Dexie('TreeNoteDB') as Dexie & {
@@ -52,12 +62,11 @@ const db = new Dexie('TreeNoteDB') as Dexie & {
   strokes: EntityTable<Stroke, 'id'>;
 };
 
-// 인덱스 컬럼만 선언 — 나머지 필드는 위 인터페이스가 타입을 보장
 db.version(1).stores({
-  subjects: '++id, order',
-  nodes:    '++id, parent_id, subject_id, order',
-  ink_pages: '++id, node_id, page_index',
-  strokes:  '++id, ink_page_id',
+  subjects:  'id, order',
+  nodes:     'id, parent_id, subject_id, order',
+  ink_pages: 'id, node_id, page_index',
+  strokes:   'id, ink_page_id',
 });
 
 export { db };
