@@ -70,6 +70,10 @@ export function useNodes(subjectId: string) {
     });
   }
 
+  async function updateBodyJson(id: string, bodyJson: object) {
+    await db.nodes.update(id, { body_json: bodyJson, updated_at: Date.now() });
+  }
+
   // 특정 노드의 상위 노드 경로를 루트 → 부모 순서로 반환
   function getAncestors(nodeId: string): Node[] {
     const result: Node[] = [];
@@ -83,5 +87,5 @@ export function useNodes(subjectId: string) {
     return result;
   }
 
-  return { nodes, treeData, addNode, renameNode, deleteNode, getAncestors };
+  return { nodes, treeData, addNode, renameNode, deleteNode, updateBodyJson, getAncestors };
 }

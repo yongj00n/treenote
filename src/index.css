@@ -1,1 +1,57 @@
 @import "tailwindcss";
+
+/* ── TipTap ProseMirror 에디터 스타일 ── */
+.ProseMirror {
+  outline: none;
+  padding: 1.5rem 2rem;
+  min-height: 100%;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: #1f2937;
+}
+
+.ProseMirror > * + * { margin-top: 0.5rem; }
+
+.ProseMirror h1 { font-size: 1.625rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.25rem; color: #111827; }
+.ProseMirror h2 { font-size: 1.25rem;  font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.25rem; color: #111827; }
+.ProseMirror h3 { font-size: 1.0625rem; font-weight: 600; margin-top: 1rem;   margin-bottom: 0.25rem; color: #111827; }
+
+.ProseMirror strong { font-weight: 700; }
+.ProseMirror em     { font-style: italic; }
+.ProseMirror u      { text-decoration: underline; }
+
+.ProseMirror ul { list-style: disc;    padding-left: 1.5rem; }
+.ProseMirror ol { list-style: decimal; padding-left: 1.5rem; }
+.ProseMirror li > p { margin: 0; }
+
+/* 체크박스 태스크 리스트 */
+.ProseMirror ul[data-type="taskList"] { list-style: none; padding-left: 0; }
+.ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.ProseMirror ul[data-type="taskList"] li > label {
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+.ProseMirror ul[data-type="taskList"] li > label input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  accent-color: #6366f1;
+}
+.ProseMirror ul[data-type="taskList"] li[data-checked="true"] > div {
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+.ProseMirror ul[data-type="taskList"] li > div { flex: 1; }
+
+/* 빈 에디터 플레이스홀더 */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #d1d5db;
+  pointer-events: none;
+  float: left;
+  height: 0;
+}

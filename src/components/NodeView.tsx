@@ -2,6 +2,7 @@ import { useState, Fragment } from 'react';
 import { type Subject } from '../db/database';
 import { useNodes } from '../hooks/useNodes';
 import { TreePanel } from './TreePanel';
+import { Editor } from './Editor';
 
 interface Props {
   subject: Subject;
@@ -9,7 +10,7 @@ interface Props {
 }
 
 export function NodeView({ subject, onBack }: Props) {
-  const { nodes, treeData, addNode, renameNode, deleteNode, getAncestors } = useNodes(subject.id);
+  const { nodes, treeData, addNode, renameNode, deleteNode, updateBodyJson, getAncestors } = useNodes(subject.id);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   const [forceOpenVer, setForceOpenVer] = useState(0);
@@ -157,12 +158,13 @@ export function NodeView({ subject, onBack }: Props) {
               </div>
             </div>
 
-            {/* 본문 영역 (Week 4에서 TipTap 에디터 들어올 자리) */}
-            <div className="flex-1 flex items-center justify-center text-gray-400">
-              <div className="text-center space-y-2">
-                <p className="text-3xl">📝</p>
-                <p className="text-sm">Week 4에서 리치 텍스트 에디터가 들어올 자리입니다</p>
-              </div>
+            {/* 본문 에디터 — 노드가 바뀔 때마다 key로 완전 리셋 */}
+            <div className="flex-1 overflow-hidden">
+              <Editor
+                key={selectedNode.id}
+                initialContent={selectedNode.body_json as object}
+                onSave={(json) => updateBodyJson(selectedNode.id, json)}
+              />
             </div>
           </>
         ) : (
