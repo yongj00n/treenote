@@ -89,6 +89,7 @@ function NodeItem({
             autoFocus
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
+            onFocus={(e) => e.target.select()}
             onBlur={submitRename}
             onKeyDown={(e) => {
               if (e.key === 'Enter') submitRename();
