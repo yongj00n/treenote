@@ -5,17 +5,19 @@ interface NodeItemProps {
   node: TreeNodeData;
   level: number;
   selectedId: string | null;
+  newlyAddedId: string | null;
   forceOpenVer: number;
   forceCloseVer: number;
   onSelect: (id: string) => void;
   onAddChild: (parentId: string) => Promise<void>;
   onRename: (id: string, name: string) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onClearNewlyAdded: () => void;
 }
 
 function NodeItem({
-  node, level, selectedId, forceOpenVer, forceCloseVer,
-  onSelect, onAddChild, onRename, onDelete,
+  node, level, selectedId, newlyAddedId, forceOpenVer, forceCloseVer,
+  onSelect, onAddChild, onRename, onDelete, onClearNewlyAdded,
 }: NodeItemProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -24,11 +26,17 @@ function NodeItem({
   const hasChildren = node.children.length > 0;
   const isSelected = selectedId === node.id;
 
-  // 전체 펼침 / 전체 접힘 버튼에 반응
+  // 새로 추가된 노드면 즉시 편집 모드로
+  useEffect(() => {
+    if (newlyAddedId === node.id) {
+      setIsEditing(true);
+      setEditValue(node.name);
+      onClearNewlyAdded();
+    }
+  }, [newlyAddedId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => { if (forceOpenVer > 0) setIsOpen(true); }, [forceOpenVer]);
   useEffect(() => { if (forceCloseVer > 0) setIsOpen(false); }, [forceCloseVer]);
-
-  // DB에서 이름이 바뀌면 편집 인풋도 동기화
   useEffect(() => { setEditValue(node.name); }, [node.name]);
 
   function submitRename() {
@@ -38,33 +46,41 @@ function NodeItem({
 
   async function handleDelete(e: React.MouseEvent) {
     e.stopPropagation();
-    const hasDesc = hasChildren;
-    const msg = hasDesc
-      ? `"${node.name}" 노드와 하위 노드를 모두 삭제할까요?`
-      : `"${node.name}" 노드를 삭제할까요?`;
+    const msg = hasChildren
+      ? `"${node.name}" 과 하위 노드를 모두 삭제할까요?`
+      : `"${node.name}" 을 삭제할까요?`;
     if (!window.confirm(msg)) return;
     await onDelete(node.id);
   }
 
   return (
     <div>
-      {/* 행 */}
       <div
-        className={`group flex items-center gap-1 py-1 pr-1 rounded-lg cursor-pointer transition-colors ${
-          isSelected ? 'bg-indigo-50' : 'hover:bg-gray-100'
+        className={`group flex items-center gap-1 py-1.5 pr-1 rounded-lg cursor-pointer transition-colors ${
+          isSelected
+            ? 'bg-indigo-50'
+            : 'hover:bg-gray-100 active:bg-gray-200'
         }`}
-        style={{ paddingLeft: level * 16 + 8 }}
+        style={{ paddingLeft: level * 16 + 6 }}
         onClick={() => onSelect(node.id)}
       >
-        {/* 펼침 토글 */}
+        {/* 펼침 토글 — 클릭 영역 넉넉하게 */}
         <button
-          className="w-4 h-4 shrink-0 flex items-center justify-center text-xs text-gray-400 hover:text-gray-600"
+          className={`w-6 h-6 shrink-0 flex items-center justify-center rounded transition-colors
+            text-gray-400 hover:text-gray-700 hover:bg-gray-200 active:bg-gray-300
+            ${!hasChildren ? 'opacity-30 pointer-events-none' : ''}`}
           onClick={(e) => {
             e.stopPropagation();
             if (hasChildren) setIsOpen((v) => !v);
           }}
+          tabIndex={-1}
         >
-          {hasChildren ? (isOpen ? '▾' : '▸') : '·'}
+          <svg
+            className={`w-3 h-3 transition-transform duration-150 ${isOpen && hasChildren ? 'rotate-90' : ''}`}
+            viewBox="0 0 6 10" fill="currentColor"
+          >
+            <path d="M1 1l4 4-4 4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
         </button>
 
         {/* 제목 or 편집 인풋 */}
@@ -79,7 +95,7 @@ function NodeItem({
               if (e.key === 'Escape') { setEditValue(node.name); setIsEditing(false); }
             }}
             onClick={(e) => e.stopPropagation()}
-            className="flex-1 text-sm px-1 py-0 border border-indigo-300 rounded outline-none bg-white"
+            className="flex-1 text-sm px-1.5 py-0.5 border border-indigo-400 rounded outline-none bg-white shadow-sm"
           />
         ) : (
           <span
@@ -92,19 +108,25 @@ function NodeItem({
           </span>
         )}
 
-        {/* 액션 버튼 (hover 시 표시) */}
+        {/* 액션 버튼 — hover 시 표시, 크기 키움 */}
         {!isEditing && (
-          <div className="opacity-0 group-hover:opacity-100 flex items-center shrink-0">
+          <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); onAddChild(node.id); }}
-              className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-indigo-500 transition-colors text-base leading-none"
               title="하위 노드 추가"
-            >+</button>
+              className="w-6 h-6 flex items-center justify-center rounded text-gray-400
+                hover:text-indigo-600 hover:bg-indigo-100 active:bg-indigo-200 transition-colors text-base leading-none"
+            >
+              +
+            </button>
             <button
               onClick={handleDelete}
-              className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-red-400 transition-colors"
               title="삭제"
-            >×</button>
+              className="w-6 h-6 flex items-center justify-center rounded text-gray-400
+                hover:text-red-500 hover:bg-red-100 active:bg-red-200 transition-colors text-lg leading-none"
+            >
+              ×
+            </button>
           </div>
         )}
       </div>
@@ -116,12 +138,14 @@ function NodeItem({
           node={child}
           level={level + 1}
           selectedId={selectedId}
+          newlyAddedId={newlyAddedId}
           forceOpenVer={forceOpenVer}
           forceCloseVer={forceCloseVer}
           onSelect={onSelect}
           onAddChild={onAddChild}
           onRename={onRename}
           onDelete={onDelete}
+          onClearNewlyAdded={onClearNewlyAdded}
         />
       ))}
     </div>
@@ -131,17 +155,19 @@ function NodeItem({
 interface TreePanelProps {
   treeData: TreeNodeData[];
   selectedId: string | null;
+  newlyAddedId: string | null;
   forceOpenVer: number;
   forceCloseVer: number;
   onSelect: (id: string) => void;
   onAddChild: (parentId: string) => Promise<void>;
   onRename: (id: string, name: string) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onClearNewlyAdded: () => void;
 }
 
 export function TreePanel({
-  treeData, selectedId, forceOpenVer, forceCloseVer,
-  onSelect, onAddChild, onRename, onDelete,
+  treeData, selectedId, newlyAddedId, forceOpenVer, forceCloseVer,
+  onSelect, onAddChild, onRename, onDelete, onClearNewlyAdded,
 }: TreePanelProps) {
   if (treeData.length === 0) {
     return (
@@ -162,12 +188,14 @@ export function TreePanel({
           node={node}
           level={0}
           selectedId={selectedId}
+          newlyAddedId={newlyAddedId}
           forceOpenVer={forceOpenVer}
           forceCloseVer={forceCloseVer}
           onSelect={onSelect}
           onAddChild={onAddChild}
           onRename={onRename}
           onDelete={onDelete}
+          onClearNewlyAdded={onClearNewlyAdded}
         />
       ))}
     </div>

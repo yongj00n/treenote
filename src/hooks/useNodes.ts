@@ -70,5 +70,18 @@ export function useNodes(subjectId: string) {
     });
   }
 
-  return { treeData, addNode, renameNode, deleteNode };
+  // 특정 노드의 상위 노드 경로를 루트 → 부모 순서로 반환
+  function getAncestors(nodeId: string): Node[] {
+    const result: Node[] = [];
+    let current = nodes.find((n) => n.id === nodeId);
+    while (current?.parent_id) {
+      const parent = nodes.find((n) => n.id === current!.parent_id);
+      if (!parent) break;
+      result.unshift(parent);
+      current = parent;
+    }
+    return result;
+  }
+
+  return { nodes, treeData, addNode, renameNode, deleteNode, getAncestors };
 }
