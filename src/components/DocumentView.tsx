@@ -485,9 +485,10 @@ const NodeSection = memo(function NodeSection({
       )}
 
       {/* ── 콘텐츠 영역: 텍스트 위에 필기 오버레이 ── */}
-      {isContentOpen && (
+      {/* showEditor는 isSelected도 포함 → isContentOpen과 별도로 게이팅 */}
+      {(showEditor || showInk) && (
         <div
-          className="relative"
+          className="relative overflow-hidden"
           style={{ paddingLeft: '26px', paddingRight: '8px', minHeight: showInk ? '80px' : undefined }}
           onClick={(e) => e.stopPropagation()}
         >

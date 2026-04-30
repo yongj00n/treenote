@@ -105,7 +105,7 @@ export const InkCanvas = forwardRef<InkCanvasHandle, Props>(
           pointerEvents: isActive ? 'all' : 'none',
           cursor: isActive ? (tool === 'eraser' ? 'cell' : 'crosshair') : 'default',
           touchAction: 'none',
-          overflow: 'visible',
+          overflow: 'hidden',
         }}
         onPointerDown={isActive ? onDown : undefined}
         onPointerMove={isActive ? onMove : undefined}
