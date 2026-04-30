@@ -759,13 +759,13 @@ export function DocumentView({
       </div>
 
       {/* ── 문서 본문 ── */}
-      <div className="flex-1 overflow-y-auto px-4 py-2">
+      <div className="flex-1 overflow-y-auto px-4 py-2 flex flex-col">
         {treeData.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex-1 flex items-center justify-center">
             <div className="text-center space-y-3">
               <p className="text-3xl">🌱</p>
               <p className="text-gray-600 font-medium">아직 노드가 없어요</p>
-              <p className="text-sm text-gray-400">아래 <strong>노드 추가</strong> 버튼으로 시작하세요</p>
+              <p className="text-sm text-gray-400"><strong>노드 추가</strong> 버튼으로 시작하세요</p>
             </div>
           </div>
         ) : (
@@ -780,7 +780,7 @@ export function DocumentView({
           </DndContext>
         )}
 
-        <div className={`pt-2 pb-4 ${columns === 1 ? 'max-w-4xl mx-auto' : ''}`}>
+        <div className={`pt-2 pb-4 shrink-0 ${columns === 1 ? 'max-w-4xl mx-auto w-full' : ''}`}>
           <button onClick={onAddRootNode}
             className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg
               border-2 border-dashed border-gray-300 text-sm text-gray-400
