@@ -121,3 +121,15 @@
 .node-editor .ProseMirror table th {
   padding: 0.25rem 0.5rem;
 }
+
+/* ── 블러 마크 ── */
+span[data-blur] {
+  filter: blur(6px);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: filter 0.15s ease;
+  user-select: none;
+}
+span[data-blur]:hover {
+  filter: none;
+}

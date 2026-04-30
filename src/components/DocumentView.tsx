@@ -10,6 +10,7 @@ import { Table } from '@tiptap/extension-table';
 import { TableRow } from '@tiptap/extension-table-row';
 import { TableCell } from '@tiptap/extension-table-cell';
 import { TableHeader } from '@tiptap/extension-table-header';
+import { BlurMark } from '../extensions/BlurMark';
 import {
   DndContext,
   type DragEndEvent,
@@ -133,6 +134,7 @@ const NodeEditorPane = memo(function NodeEditorPane({
       TableRow,
       TableHeader,
       TableCell,
+      BlurMark,
     ],
     content: isValidDoc(initialContent) ? initialContent : undefined,
     editorProps: { attributes: { class: 'outline-none', spellcheck: String(spellCheck) } },
@@ -594,6 +596,7 @@ export function DocumentView({
   const isOrdered = ae?.isActive('orderedList') ?? false;
   const isTask    = ae?.isActive('taskList')    ?? false;
   const isInTable = ae?.isActive('table')       ?? false;
+  const isBlur    = ae?.isActive('blur')        ?? false;
 
   function cmd(fn: (e: TiptapEditor) => void) {
     if (activeEditorRef.current) fn(activeEditorRef.current);
@@ -721,6 +724,11 @@ export function DocumentView({
                   active={false} title="표 삭제">표✕</TBtn>
           </>
         )}
+        <TSep />
+        <TBtn onClick={() => cmd((e) => e.chain().focus().toggleMark('blur').run())}
+              active={isBlur} title="블러 (선택 텍스트 가리기 / 호버로 확인)">
+          <span style={{ filter: 'blur(2px)', letterSpacing: '-0.5px' }}>블</span>
+        </TBtn>
         <TSep />
         <TBtn onClick={() => setSpellCheck((v) => !v)} active={spellCheck} title="맞춤법 검사">맞</TBtn>
         <TSep />
