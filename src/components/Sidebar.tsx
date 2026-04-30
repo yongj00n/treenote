@@ -10,12 +10,14 @@ import { AddSubjectModal } from './AddSubjectModal';
 interface Props {
   subjects: Subject[];
   selectedId: string | null;
+  isOpen: boolean;
+  onToggle: () => void;
   onSelect: (id: string) => void;
   onAdd: (data: { name: string; grade_level: GradeLevel | null; color: string }) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
 }
 
-export function Sidebar({ subjects, selectedId, onSelect, onAdd, onDelete }: Props) {
+export function Sidebar({ subjects, selectedId, isOpen, onToggle, onSelect, onAdd, onDelete }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -42,12 +44,33 @@ export function Sidebar({ subjects, selectedId, onSelect, onAdd, onDelete }: Pro
     setDeletingId(null);
   }
 
+  if (!isOpen) {
+    return (
+      <aside className="w-10 shrink-0 h-screen bg-gray-50 border-r border-gray-200 flex flex-col items-center pt-3">
+        <button
+          onClick={onToggle}
+          title="사이드바 열기"
+          className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors text-base"
+        >
+          ›
+        </button>
+      </aside>
+    );
+  }
+
   return (
     <>
       <aside className="w-64 shrink-0 h-screen bg-gray-50 border-r border-gray-200 flex flex-col">
         {/* 헤더 */}
-        <div className="px-4 py-4 border-b border-gray-200">
+        <div className="px-4 py-4 border-b border-gray-200 flex items-center justify-between">
           <span className="text-lg font-bold text-indigo-600">Tree Note</span>
+          <button
+            onClick={onToggle}
+            title="사이드바 닫기"
+            className="w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors text-base"
+          >
+            ‹
+          </button>
         </div>
 
         {/* 과목 목록 */}

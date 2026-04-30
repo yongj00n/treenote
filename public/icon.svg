@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#6366f1"/>
+  <!-- 트리 구조 선 -->
+  <line x1="160" y1="140" x2="160" y2="380" stroke="white" stroke-width="18" stroke-linecap="round"/>
+  <line x1="160" y1="200" x2="320" y2="200" stroke="white" stroke-width="18" stroke-linecap="round"/>
+  <line x1="160" y1="290" x2="320" y2="290" stroke="white" stroke-width="18" stroke-linecap="round"/>
+  <!-- 노드 원 -->
+  <circle cx="160" cy="140" r="22" fill="white"/>
+  <circle cx="320" cy="200" r="22" fill="white"/>
+  <circle cx="320" cy="290" r="22" fill="white"/>
+  <circle cx="160" cy="380" r="22" fill="white"/>
+</svg>
